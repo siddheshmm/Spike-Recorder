@@ -851,7 +851,7 @@ void AudioView::paintEvent() {
 
 	drawRulerTime();
 	drawTimeScale();
-	drawAmplitudeScale();
+	//drawAmplitudeScale();
 
 	if(!_manager.fileMode() && _manager.virtualDevices().size() == 0) {
 		Widgets::Application::font()->draw("No input device available", width()/2, height()/2, Widgets::AlignCenter);
