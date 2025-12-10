@@ -579,6 +579,7 @@ void ArduinoSerial::scanPortsThreadFunction(ArduinoSerial * selfRef, ArduinoSeri
 #ifdef _WIN32
             void  ArduinoSerial::enumerateSerialPortsFriendlyNames( std::string& portForBootloader)
             {
+                Log::msg("Start enumerateSerialPortsFriendlyNames");
                 SP_DEVINFO_DATA devInfoData = {};
                 devInfoData.cbSize = sizeof(devInfoData);
 
@@ -606,7 +607,7 @@ void ArduinoSerial::scanPortsThreadFunction(ArduinoSerial * selfRef, ArduinoSeri
                     SetupDiGetDeviceRegistryProperty(hDeviceInfo, &devInfoData, SPDRP_HARDWAREID, nullptr, nullptr, 0, &reqSize);
                     BYTE* hardwareId = new BYTE[(reqSize > 1) ? reqSize : 1];
                     // now store it in a buffer
-                    if (SetupDiGetDeviceRegistryProperty(hDeviceInfo, &devInfoData, SPDRP_HARDWAREID, &regDataType, hardwareId, sizeof(hardwareId) * reqSize, nullptr))
+                    if (SetupDiGetDeviceRegistryProperty(hDeviceInfo, &devInfoData, SPDRP_HARDWAREID, &regDataType, hardwareId, reqSize, nullptr))
                     {
                         std::cout <<"ID of the device: "<<(char *)hardwareId<<"\n";
 
@@ -635,7 +636,7 @@ void ArduinoSerial::scanPortsThreadFunction(ArduinoSerial * selfRef, ArduinoSeri
                         SetupDiGetDeviceRegistryProperty(hDeviceInfo, &devInfoData, SPDRP_FRIENDLYNAME, nullptr, nullptr, 0, &reqSize);
                         BYTE* friendlyName = new BYTE[(reqSize > 1) ? reqSize : 1];
                         // now store it in a buffer
-                        if (!SetupDiGetDeviceRegistryProperty(hDeviceInfo, &devInfoData, SPDRP_FRIENDLYNAME, nullptr, friendlyName, sizeof(friendlyName) * reqSize, nullptr))
+                        if (!SetupDiGetDeviceRegistryProperty(hDeviceInfo, &devInfoData, SPDRP_FRIENDLYNAME, nullptr, friendlyName, reqSize, nullptr))
                         {
                             // device does not have this property set
                             memset(friendlyName, 0, reqSize > 1 ? reqSize : 1);
@@ -687,6 +688,8 @@ void ArduinoSerial::scanPortsThreadFunction(ArduinoSerial * selfRef, ArduinoSeri
                     }
                     delete[] hardwareId;
                 }
+                SetupDiDestroyDeviceInfoList(hDeviceInfo);
+                Log::msg("End enumerateSerialPortsFriendlyNames");
             }
 #endif
     //
