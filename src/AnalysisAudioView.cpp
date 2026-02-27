@@ -2,9 +2,12 @@
 #include "widgets/Painter.h"
 #include "widgets/TextureGL.h"
 #include <SDL_opengl.h>
+#include "engine/TouchDetector.h"
 namespace BackyardBrains {
 
-AnalysisAudioView::AnalysisAudioView(RecordingManager &manager, AnalysisManager &anaman, SpikeSorter &spikes, Widgets::Widget *parent) : AudioView(parent, manager, anaman), _spikes(spikes), _manager(manager), _colorIdx(0), _clickedThresh(-1) {
+static TouchDetector s_dummyTouchDetector;
+
+AnalysisAudioView::AnalysisAudioView(RecordingManager &manager, AnalysisManager &anaman, SpikeSorter &spikes, Widgets::Widget *parent) : AudioView(parent, manager, anaman, s_dummyTouchDetector), _spikes(spikes), _manager(manager), _colorIdx(0), _clickedThresh(-1) {
 	_threshPos[0] = -0;
 	_threshPos[1] = 0;
 	_channels[0].pos = 0.5;

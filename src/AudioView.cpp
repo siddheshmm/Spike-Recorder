@@ -57,8 +57,8 @@ const int AudioView::MARKER_COLOR_NUM = sizeof(AudioView::MARKER_COLORS)/sizeof(
 
 const float AudioView::ampScale = .0005f;
 
-AudioView::AudioView(Widgets::Widget *parent, RecordingManager &mngr, AnalysisManager &anaman)
-	: Widgets::Widget(parent), _manager(mngr), _anaman(anaman), _clickedGain(-1), _clickedSlider(-1), _clickedPixelOffset(0),
+AudioView::AudioView(Widgets::Widget *parent, RecordingManager &mngr, AnalysisManager &anaman, TouchDetector &touchDetector)
+	: Widgets::Widget(parent), _manager(mngr), _anaman(anaman), _touchDetector(touchDetector), _clickedGain(-1), _clickedSlider(-1), _clickedPixelOffset(0),
 	_clickedThresh(false), _rulerClicked(false), _rulerStart(-1.f), _rulerEnd(-1.f), _channelOffset(0), _timeScale(0.1f)  {
 
 	_gainCtrlHoldTime = 0;
@@ -831,6 +831,7 @@ void AudioView::paintEvent() {
 		drawSpikeTrain();
     }
 	drawAudio();
+	drawTouchIndicator();
 
 	if(_manager.threshMode())
     {
@@ -856,6 +857,87 @@ void AudioView::paintEvent() {
 	if(!_manager.fileMode() && _manager.virtualDevices().size() == 0) {
 		Widgets::Application::font()->draw("No input device available", width()/2, height()/2, Widgets::AlignCenter);
 	}
+}
+
+void AudioView::drawTouchIndicator() {
+	// Only show when in serial mode (live from SpikerBox)
+	if (!_manager.serialMode()) return;
+	if (!_touchDetector.isModelLoaded()) return;
+	if (!_touchDetector.isEnabled()) return;
+
+	float prob = _touchDetector.touchProbability();
+	bool touch = _touchDetector.isTouchDetected();
+	bool hasData = _touchDetector.hasEnoughData();
+
+	// --- Draw indicator panel at top-right ---
+	int panelW = 180;
+	int panelH = 52;
+	int panelX = width() - panelW - 15;
+	int panelY = 8;
+
+	// Background
+	if (touch) {
+		Widgets::Painter::setColor(Widgets::Color(0, 180, 60, 200)); // green
+	} else {
+		Widgets::Painter::setColor(Widgets::Color(40, 40, 50, 180)); // dark
+	}
+	Widgets::Painter::drawRect(Widgets::Rect(panelX, panelY, panelW, panelH));
+
+	// Border
+	if (touch) {
+		Widgets::Painter::setColor(Widgets::Color(100, 255, 130, 255));
+	} else {
+		Widgets::Painter::setColor(Widgets::Color(80, 80, 100, 200));
+	}
+	// Top
+	Widgets::Painter::drawRect(Widgets::Rect(panelX, panelY, panelW, 1));
+	// Bottom
+	Widgets::Painter::drawRect(Widgets::Rect(panelX, panelY + panelH, panelW, 1));
+	// Left
+	Widgets::Painter::drawRect(Widgets::Rect(panelX, panelY, 1, panelH));
+	// Right
+	Widgets::Painter::drawRect(Widgets::Rect(panelX + panelW, panelY, 1, panelH));
+
+	// Text label
+	std::stringstream label;
+	if (!hasData) {
+		label << "Buffering...";
+	} else if (touch) {
+		label << "TOUCH " << (int)(prob * 100) << "%";
+	} else {
+		label << "No Touch " << (int)(prob * 100) << "%";
+	}
+
+	Widgets::Painter::setColor(Widgets::Colors::white);
+	Widgets::Application::font()->draw(label.str().c_str(), panelX + panelW / 2, panelY + 6, Widgets::AlignHCenter);
+
+	// --- Probability bar ---
+	int barX = panelX + 10;
+	int barY = panelY + 28;
+	int barW = panelW - 20;
+	int barH = 14;
+
+	// Bar background
+	Widgets::Painter::setColor(Widgets::Color(20, 20, 30, 200));
+	Widgets::Painter::drawRect(Widgets::Rect(barX, barY, barW, barH));
+
+	// Bar fill
+	int fillW = (int)(prob * barW);
+	if (fillW > barW) fillW = barW;
+	if (fillW < 0) fillW = 0;
+
+	if (touch) {
+		Widgets::Painter::setColor(Widgets::Color(50, 220, 100, 230));
+	} else {
+		Widgets::Painter::setColor(Widgets::Color(80, 130, 200, 200));
+	}
+	Widgets::Painter::drawRect(Widgets::Rect(barX, barY, fillW, barH));
+
+	// Threshold marker line
+	float thresh = _touchDetector.getThreshold();
+	int threshX = barX + (int)(thresh * barW);
+	Widgets::Painter::setColor(Widgets::Color(255, 255, 0, 200));
+	Widgets::Painter::drawRect(Widgets::Rect(threshX, barY - 2, 1, barH + 4));
 }
 
 void AudioView::drawZeroLine()

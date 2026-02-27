@@ -5,6 +5,7 @@
 #include "widgets/ScrollBar.h"
 #include "engine/RecordingManager.h"
 #include "engine/AnalysisManager.h"
+#include "engine/TouchDetector.h"
 #include "widgets/Color.h"
 
 namespace BackyardBrains {
@@ -38,7 +39,7 @@ public:
 	void constructMetadata(MetadataChunk *mdata) const;
 	void applyMetadata(const MetadataChunk &mdata);
 
-	AudioView(Widgets::Widget *parent, RecordingManager &mngr, AnalysisManager &anaman);
+	AudioView(Widgets::Widget *parent, RecordingManager &mngr, AnalysisManager &anaman, TouchDetector &touchDetector);
 	virtual ~AudioView();
 
 	void setChannelColor(int channel, int coloridx);
@@ -80,6 +81,7 @@ protected:
 	static const float ampScale; // pixels per amplitude unit
 	RecordingManager &_manager;
 	AnalysisManager &_anaman;
+	TouchDetector &_touchDetector;
 	std::vector<Channel> _channels;
 
 	void drawAudio();
@@ -94,6 +96,7 @@ protected:
 	void drawGainControls();
 	void drawData(std::vector<std::pair<int16_t, int16_t> > &data, int channel, int samples, int x, int y, int width, int numberOfSamplesToAvoid);
 	void paintEvent();
+	void drawTouchIndicator();
 	void drawSpikeTrainStatistics();
 
 	void mousePressEvent(Widgets::MouseEvent *event);

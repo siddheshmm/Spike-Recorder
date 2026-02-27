@@ -78,6 +78,7 @@ SRCS = \
 	./src/engine/RecordingManager.cpp \
 	./src/engine/SpikeAnalysis.cpp \
 	./src/engine/SpikeSorter.cpp \
+	./src/engine/TouchDetector.cpp \
 	./src/engine/firmware/BSLFirmwareUpdater.cpp \
 	./src/engine/firmware/BYBFirmwareVO.cpp \
 	./src/engine/firmware/FirmwareUpdater.cpp \

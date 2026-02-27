@@ -5,6 +5,7 @@
 #include "engine/RecordingManager.h"
 #include "engine/AnalysisManager.h"
 #include "engine/FileRecorder.h"
+#include "engine/TouchDetector.h"
 
 namespace BackyardBrains {
 
@@ -18,6 +19,7 @@ private:
 	RecordingManager _manager;
 	AnalysisManager _anaman;
 	FileRecorder _fileRec;
+	TouchDetector _touchDetector;
 	void advance();
 	float roundingDifference;
 };

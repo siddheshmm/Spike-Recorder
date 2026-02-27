@@ -10,6 +10,7 @@ namespace BackyardBrains {
 class RecordingManager;
 class AnalysisManager;
 class FileRecorder;
+class TouchDetector;
 class AudioView;
 class RecordingBar;
 class AnalysisView;
@@ -21,7 +22,7 @@ namespace Widgets {
 
 class MainView : public Widgets::Widget {
 public:
-	MainView(RecordingManager &mngr, AnalysisManager &anaman, FileRecorder &fileRec, Widget *parent = NULL);
+	MainView(RecordingManager &mngr, AnalysisManager &anaman, FileRecorder &fileRec, TouchDetector &touchDetector, Widget *parent = NULL);
 
     struct SerialPortIndicator
     {
@@ -40,6 +41,7 @@ private:
 	RecordingManager &_manager;
 	AnalysisManager &_anaman;
 	FileRecorder &_fileRec;
+	TouchDetector &_touchDetector;
 
     std::list<SerialPortIndicator> shieldButtons;
 
@@ -52,6 +54,7 @@ private:
 	Widgets::PushButton *_recordButton;
 	Widgets::PushButton *_fftButton;
 	Widgets::PushButton *_analysisButton;
+	Widgets::PushButton *_touchDetectButton;
 	Widgets::PushButton *_muscleHIDButton;
     Widgets::PushButton *_neuronHIDButton;
 	Widgets::PushButton *threshButton;
@@ -70,6 +73,8 @@ private:
     Widgets::PushButton * _backwardButton;
     void alphaFeedbackPressed();
     bool alphaFeedbackAcive;
+    void touchDetectPressed();
+    bool touchDetectActive;
 
 	Widgets::ScrollBar *_seekBar;
 	Widgets::Widget *_threshavgGroup;

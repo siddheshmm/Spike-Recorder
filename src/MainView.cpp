@@ -13,6 +13,7 @@
 #include "engine/SpikeSorter.h"
 #include "engine/FileRecorder.h"
 #include "engine/AnalysisManager.h"
+#include "engine/TouchDetector.h"
 #include "Paths.h"
 #include "MainView.h"
 #include "AudioView.h"
@@ -34,8 +35,8 @@
 namespace BackyardBrains {
 
 
-MainView::MainView(RecordingManager &mngr, AnalysisManager &anaman, FileRecorder &fileRec, Widget *parent) : Widget(parent), _manager(mngr), _anaman(anaman), _fileRec(fileRec), _anaView(NULL) {
-	_audioView = new AudioView(this, _manager, _anaman);
+MainView::MainView(RecordingManager &mngr, AnalysisManager &anaman, FileRecorder &fileRec, TouchDetector &touchDetector, Widget *parent) : Widget(parent), _manager(mngr), _anaman(anaman), _fileRec(fileRec), _touchDetector(touchDetector), _anaView(NULL) {
+	_audioView = new AudioView(this, _manager, _anaman, _touchDetector);
 
 	    //setup timer that will periodicaly check for USB HID devices
 
@@ -134,6 +135,12 @@ MainView::MainView(RecordingManager &mngr, AnalysisManager &anaman, FileRecorder
     _alphaFeedbackButton->setVisible(false);
      alphaFeedbackAcive = false;
 
+    _touchDetectButton = new Widgets::PushButton(this);
+    _touchDetectButton->setNormalTex(Widgets::TextureGL::get("data/touchdetect.bmp"));
+    _touchDetectButton->setHoverTex(Widgets::TextureGL::get("data/touchdetecthigh.bmp"));
+    _touchDetectButton->clicked.connect(this, &MainView::touchDetectPressed);
+    touchDetectActive = false;
+
 
 
 	_backwardButton = new Widgets::PushButton(this);
@@ -193,6 +200,8 @@ MainView::MainView(RecordingManager &mngr, AnalysisManager &anaman, FileRecorder
     topBar->addWidget(_alphaFeedbackButton);
     topBar->addSpacing(10);
 	topBar->addWidget(_recordButton);
+	topBar->addSpacing(5);
+	topBar->addWidget(_touchDetectButton);
 	topBar->addSpacing(5);
 	topBar->addWidget(_fileButton);
 	topBar->addSpacing(10);
@@ -276,6 +285,21 @@ void MainView::alphaFeedbackPressed()
         alphaFeedbackAcive = true;
     }
 }
+
+void MainView::touchDetectPressed() {
+    if (touchDetectActive) {
+        _touchDetectButton->setNormalTex(Widgets::TextureGL::get("data/touchdetect.bmp"));
+        _touchDetectButton->setHoverTex(Widgets::TextureGL::get("data/touchdetecthigh.bmp"));
+        touchDetectActive = false;
+        _touchDetector.setEnabled(false);
+    } else {
+        _touchDetectButton->setNormalTex(Widgets::TextureGL::get("data/touchdetectactive.bmp"));
+        _touchDetectButton->setHoverTex(Widgets::TextureGL::get("data/touchdetectactive.bmp"));
+        touchDetectActive = true;
+        _touchDetector.setEnabled(true);
+    }
+}
+
 void MainView::forwardPressed() {
 	if(_manager.fileMode()) { // end file mode when in file mode
 		//delete _anaView;

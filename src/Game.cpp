@@ -11,7 +11,7 @@ Game::Game() : _anaman(_manager), _fileRec(_manager) {
 	loadResources();
 	Log::msg("Creating Window...");
 
-	addWindow(new MainView(_manager, _anaman, _fileRec));
+	addWindow(new MainView(_manager, _anaman, _fileRec, _touchDetector));
 	createWindow(800,600);
 	setWindowTitle("BYB Spike Recorder");
 
@@ -45,6 +45,9 @@ void Game::loadResources() {
 	Widgets::TextureGL::load("data/rechigh.bmp");
 	Widgets::TextureGL::load("data/file.bmp");
 	Widgets::TextureGL::load("data/filehigh.bmp");
+	Widgets::TextureGL::load("data/touchdetect.bmp");
+	Widgets::TextureGL::load("data/touchdetecthigh.bmp");
+	Widgets::TextureGL::load("data/touchdetectactive.bmp");
 	Widgets::TextureGL::load("data/analysis.bmp");
 	Widgets::TextureGL::load("data/analysishigh.bmp");
 	Widgets::TextureGL::load("data/fft.bmp");
@@ -231,6 +234,21 @@ void Game::advance() {
     roundingDifference = sampleNumber-trimmedNumber;
     _manager.advance((int32_t)sampleNumber); // fetch more samples than necessary to prevent lag
 	_fileRec.advance();
+
+	// Feed audio samples to touch detector
+	if (_touchDetector.isEnabled() && _manager.serialMode() && _manager.numberOfChannels() > 0) {
+		int samplesToFeed = (int32_t)sampleNumber;
+		if (samplesToFeed > 0) {
+			int pos = _manager.pos() - samplesToFeed;
+			if (pos >= 0) {
+				int16_t *tmpBuf = new int16_t[samplesToFeed];
+				_manager.getData(0, pos, samplesToFeed, tmpBuf);
+				_touchDetector.pushSamples(tmpBuf, samplesToFeed);
+				_touchDetector.update(_manager.sampleRate());
+				delete[] tmpBuf;
+			}
+		}
+	}
 
 	t = newt;
 }
