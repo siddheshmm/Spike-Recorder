@@ -30,3 +30,6 @@ win/build/byb.log
 win/build/byb.log
 win/build/byb.log
 /win/manual-installation/obj
+
+.vs/
+ML/

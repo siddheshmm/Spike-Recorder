@@ -4,25 +4,33 @@
         {
             "label": "Build with Make",
             "type": "shell",
-            "command": "make",
-            "args": ["VERBOSE=1"],
+            "command": "mingw32-make",
+            "args": [
+                "VERBOSE=1"
+            ],
             "group": {
                 "kind": "build",
                 "isDefault": true
             },
-            "problemMatcher": ["$gcc"],
+            "problemMatcher": [
+                "$gcc"
+            ],
             "detail": "Build using Makefile"
         },
         {
             "label": "Clean with Make",
             "type": "shell",
-            "command": "make",
-            "args": ["clean"],
+            "command": "mingw32-make",
+            "args": [
+                "clean"
+            ],
             "group": {
                 "kind": "build",
                 "isDefault": false
             },
-            "problemMatcher": ["$gcc"],
+            "problemMatcher": [
+                "$gcc"
+            ],
             "detail": "Clean build files using Makefile"
         }
     ]
